@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Điểm Danh</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700;800&display=swap');
+:root{
+  --bg:#0f1318;--surf:#181d25;--surf2:#1e2530;
+  --border:#2a3140;--border2:#323d4e;
+  --s1:#4f8ef7;--s1dim:rgba(79,142,247,.12);--s1glow:rgba(79,142,247,.25);
+  --s2:#f97316;--s2dim:rgba(249,115,22,.12);--s2glow:rgba(249,115,22,.25);
+  --ok:#22c55e;--okdim:rgba(34,197,94,.12);
+  --ng:#f43f5e;--ngdim:rgba(244,63,94,.12);
+  --txt:#e8edf5;--txt2:#8b95a8;--txt3:#505a6a;--r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.topbar{background:rgba(15,19,24,.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+.tb1{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 10px}
+.brand{font-family:'Instrument Serif',serif;font-size:22px}
+.brand em{font-style:italic;color:var(--s1)}
+.tb-r{display:flex;gap:6px;align-items:center}
+.pill{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px;background:var(--okdim);color:var(--ok);border:1px solid rgba(34,197,94,.25);transition:all .3s;white-space:nowrap}
+.pill.busy{background:rgba(250,204,21,.1);color:#fbbf24;border-color:rgba(251,191,36,.3)}
+.pill.fail{background:var(--ngdim);color:var(--ng);border-color:rgba(244,63,94,.3)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.busy .dot{animation:blink .7s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.ibtn{background:var(--surf2);border:1px solid var(--border2);border-radius:9px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s}
+.ibtn:active{transform:scale(.88)}
+.tabs{display:flex;gap:8px;padding:10px 16px 12px}
+.tab{flex:1;padding:10px 8px 9px;border-radius:12px;border:1.5px solid var(--border);background:var(--surf2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;text-align:center;color:var(--txt2)}
+.tab .tc{font-size:10px;font-weight:400;opacity:.6;display:block;margin-top:2px}
+.tab.s1.on{background:var(--s1dim);border-color:rgba(79,142,247,.4);color:var(--s1);box-shadow:0 0 16px var(--s1glow)}
+.tab.s2.on{background:var(--s2dim);border-color:rgba(249,115,22,.4);color:var(--s2);box-shadow:0 0 16px var(--s2glow)}
+.stats{display:flex;gap:7px;padding:0 16px 10px}
+.stat{flex:1;background:var(--surf);border:1px solid var(--border);border-radius:11px;padding:9px 6px;text-align:center}
+.sn{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;line-height:1}
+.sn.t{color:var(--txt)}.sn.y{color:var(--ok)}.sn.n{color:var(--ng)}.sn.k{color:var(--txt3)}
+.sl{font-size:9px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.pw{padding:0 16px 10px}
+.pt{height:4px;background:var(--surf2);border-radius:4px;overflow:hidden}
+.pf{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.pf.c1{background:linear-gradient(90deg,var(--s1),#93c5fd)}
+.pf.c2{background:linear-gradient(90deg,var(--s2),#fb923c)}
+.px{font-size:11px;color:var(--txt3);font-weight:500;margin-top:5px}
+.sa{padding:0 16px 12px;display:flex;gap:7px}
+.sw{flex:1;position:relative}
+.si{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:14px;pointer-events:none}
+.sinp{width:100%;background:var(--surf);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px 10px 36px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--txt);outline:none;transition:border-color .2s}
+.sinp:focus{border-color:var(--s1)}
+.sinp::placeholder{color:var(--txt3)}
+.fb{background:var(--surf);border:1.5px solid var(--border);border-radius:10px;padding:0 14px;cursor:pointer;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;color:var(--txt2);white-space:nowrap;transition:all .15s}
+.fb.on{background:var(--s1);border-color:var(--s1);color:var(--bg)}
+.list{padding:6px 16px 140px;display:flex;flex-direction:column;gap:7px}
+.row{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);padding:12px 12px 12px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;user-select:none}
+.row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border);border-radius:3px 0 0 3px;transition:all .2s}
+.row.yes{border-color:rgba(34,197,94,.3);background:var(--okdim)}
+.row.yes::before{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.row.no{border-color:rgba(244,63,94,.3);background:var(--ngdim)}
+.row.no::before{background:var(--ng);box-shadow:0 0 8px var(--ng)}
+.row:active{transform:scale(.985);opacity:.8}
+.av{width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:15px;background:var(--surf2);color:var(--txt2);border:1.5px solid var(--border2);transition:all .2s}
+.row.yes .av{background:var(--okdim);color:var(--ok);border-color:rgba(34,197,94,.4)}
+.row.no  .av{background:var(--ngdim);color:var(--ng);border-color:rgba(244,63,94,.4)}
+.ri{flex:1;min-width:0}
+.rn{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
+.rc{font-size:12px;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.rs{font-size:11px;font-weight:600;margin-top:3px}
+.ry{color:var(--ok)}.rno{color:var(--ng)}.rk{color:var(--txt3)}
+.tks{display:flex;gap:5px;flex-shrink:0}
+.tb{width:40px;height:40px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;cursor:pointer;transition:all .15s}
+.tb:active{transform:scale(.8)}
+.tb.p.on{background:var(--ok);border-color:var(--ok);color:var(--bg);box-shadow:0 2px 12px rgba(34,197,94,.4)}
+.tb.a.on{background:var(--ng);border-color:var(--ng);color:var(--bg);box-shadow:0 2px 12px rgba(244,63,94,.4)}
+.bot{position:fixed;bottom:0;left:0;right:0;background:rgba(15,19,24,.96);border-top:1px solid var(--border);padding:12px 16px;backdrop-filter:blur(20px);display:flex;gap:8px}
+.bb{padding:13px 14px;border-radius:12px;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px}
+.bb:active{transform:scale(.97)}
+.bm{flex:1;background:linear-gradient(135deg,#22c55e,#16a34a);color:var(--bg);box-shadow:0 4px 16px rgba(34,197,94,.3)}
+.bs{background:var(--surf2);border:1.5px solid var(--border2);color:var(--txt2);flex:0 0 auto}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.ov.on{display:flex}
+.mo{background:var(--surf);border:1px solid var(--border2);border-radius:22px 22px 0 0;padding:24px 22px 40px;width:100%;max-width:500px}
+.mtt{font-family:'Instrument Serif',serif;font-size:18px;margin-bottom:14px;color:var(--txt)}
+.mnm{font-size:20px;font-weight:700;color:var(--txt)}
+.mcy{font-size:13px;color:var(--txt2);margin-top:3px;margin-bottom:20px}
+.mop{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.mo-btn{padding:14px 16px;border-radius:12px;border:1.5px solid var(--border2);background:var(--surf2);font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;text-align:left;display:flex;align-items:center;gap:11px;color:var(--txt)}
+.mo-btn:active{transform:scale(.98)}
+.mo-btn.y:hover,.mo-btn.y.sel{background:var(--okdim);border-color:rgba(34,197,94,.4);color:var(--ok)}
+.mo-btn.n:hover,.mo-btn.n.sel{background:var(--ngdim);border-color:rgba(244,63,94,.4);color:var(--ng)}
+.mo-btn.k:hover,.mo-btn.k.sel{background:var(--surf);border-color:var(--border);color:var(--txt2)}
+.mc{width:100%;padding:13px;border-radius:11px;border:1.5px solid var(--border2);background:none;font-family:'Outfit',sans-serif;font-size:14px;color:var(--txt3);cursor:pointer}
+mark{background:rgba(79,142,247,.25);color:var(--s1);border-radius:3px;padding:0 1px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--surf);border:1px solid var(--border2);color:var(--txt);padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .28s;z-index:999;white-space:nowrap;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.loading{text-align:center;padding:60px 20px;color:var(--txt3)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb1">
+    <div class="brand">Điểm <em>Danh</em></div>
+    <div class="tb-r">
+      <div class="pill" id="pill"><div class="dot"></div><span id="ptxt">Đang tải...</span></div>
+      <div class="ibtn" onclick="loadData()">🔄</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab s1 on" id="t1" onclick="switchSes(1)">Buổi 1<span class="tc" id="tc1">—</span></button>
+    <button class="tab s2"    id="t2" onclick="switchSes(2)">Buổi 2<span class="tc" id="tc2">—</span></button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="sn t" id="sT">0</div><div class="sl">Tổng</div></div>
+  <div class="stat"><div class="sn y" id="sY">0</div><div class="sl">Có mặt</div></div>
+  <div class="stat"><div class="sn n" id="sN">0</div><div class="sl">Vắng</div></div>
+  <div class="stat"><div class="sn k" id="sK">0</div><div class="sl">Chưa tick</div></div>
+</div>
+
+<div class="pw">
+  <div class="pt"><div class="pf c1" id="pf" style="width:0%"></div></div>
+  <div class="px" id="px">Đang tải...</div>
+</div>
+
+<div class="sa">
+  <div class="sw">
+    <span class="si">🔍</span>
+    <input class="sinp" id="sq" placeholder="Tìm tên hoặc công ty..." oninput="renderList()">
+  </div>
+  <button class="fb" id="fb" onclick="cycleFilter()">Tất cả</button>
+</div>
+
+<div class="list" id="listEl">
+  <div class="loading">⏳ Đang kết nối Google Sheet...</div>
+</div>
+
+<div class="bot">
+  <button class="bb bs" onclick="resetSes()">↺ Reset</button>
+  <button class="bb bm" onclick="exportCSV()">📊 Xuất CSV</button>
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="closeMo()">
+  <div class="mo" onclick="event.stopPropagation()">
+    <div class="mtt">Cập nhật điểm danh</div>
+    <div class="mnm" id="mNm"></div>
+    <div class="mcy" id="mCy"></div>
+    <div class="mop">
+      <button class="mo-btn y" onclick="moSet('yes')">✅&nbsp; Có mặt</button>
+      <button class="mo-btn n" onclick="moSet('no')">❌&nbsp; Vắng mặt</button>
+      <button class="mo-btn k" onclick="moSet('')">—&nbsp; Bỏ chọn</button>
+    </div>
+    <button class="mc" onclick="closeMo()">Đóng</button>
+  </div>
+</div>
+
+<div class="toast" id="toastEl"></div>
+
+<script>
+var DATA = [], SES = 1, FILTER = 'all', MIDX = null;
+var saveTimer = null, saveQ = [];
+var FILTERS = ['all','nk','yes','no'];
+var FLBL = {all:'Tất cả', nk:'Chưa tick', yes:'Có mặt', no:'Vắng'};
+var BASE_URL = 'https://script.google.com/macros/s/AKfycbwVZvfLzSHgqTbYk79Py-yNUYZYw6VPwPmAJjkMLBiCF8v24QaEMlHutqeabp6wosBW/exec';
+
+function api(params) {
+  var qs = Object.keys(params).map(function(k) {
+    return k + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+  return fetch(BASE_URL + '?' + qs + '&_=' + Date.now())
+    .then(function(r) { return r.json(); })
+    .then(function(j) { if (!j.ok) throw new Error(j.error || 'Lỗi'); return j; });
+}
+
+function loadData() {
+  setPill('busy', 'Đang tải...');
+  api({action: 'list'}).then(function(j) {
+    DATA = j.data;
+    renderAll();
+    setPill('ok', 'Đã lưu');
+  }).catch(function(e) {
+    setPill('fail', 'Lỗi tải');
+    document.getElementById('listEl').innerHTML = '<div class="loading">❌ ' + e.message + '</div>';
+  });
+}
+
+function setStatus(idx, val, e) {
+  if (e) e.stopPropagation();
+  var cur = SES === 1 ? DATA[idx].s1 : DATA[idx].s2;
+  var next = cur === val ? '' : val;
+  if (SES === 1) DATA[idx].s1 = next; else DATA[idx].s2 = next;
+  renderAll();
+  qSave(DATA[idx].row, SES, next);
+}
+
+function qSave(row, ses, val) {
+  saveQ = saveQ.filter(function(x) { return !(x.row === row && x.ses === ses); });
+  saveQ.push({row: row, ses: ses, val: val});
+  setPill('busy', 'Đang lưu...');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(flushSave, 600);
+}
+
+function flushSave() {
+  if (!saveQ.length) return;
+  var batch = saveQ.slice(); saveQ = [];
+  Promise.all(batch.map(function(item) {
+    return api({action:'set', row:item.row, session:item.ses, value:item.val});
+  })).then(function() {
+    setPill('ok', 'Đã lưu ✓');
+  }).catch(function(e) {
+    setPill('fail', 'Lỗi lưu');
+    toast('❌ ' + e.message);
+  });
+}
+
+function openMo(idx) {
+  MIDX = idx;
+  document.getElementById('mNm').textContent = DATA[idx].name;
+  document.getElementById('mCy').textContent = DATA[idx].company;
+  document.getElementById('ov').classList.add('on');
+}
+function closeMo() { document.getElementById('ov').classList.remove('on'); MIDX = null; }
+function moSet(val) {
+  if (MIDX === null) return;
+  if (SES === 1) DATA[MIDX].s1 = val; else DATA[MIDX].s2 = val;
+  var row = DATA[MIDX].row;
+  closeMo(); renderAll(); qSave(row, SES, val);
+}
+
+function switchSes(n) {
+  SES = n;
+  document.getElementById('t1').classList.toggle('on', n === 1);
+  document.getElementById('t2').classList.toggle('on', n === 2);
+  document.getElementById('pf').className = 'pf ' + (n === 1 ? 'c1' : 'c2');
+  FILTER = 'all';
+  document.getElementById('fb').textContent = 'Tất cả';
+  document.getElementById('fb').classList.remove('on');
+  document.getElementById('sq').value = '';
+  renderAll();
+}
+
+function cycleFilter() {
+  FILTER = FILTERS[(FILTERS.indexOf(FILTER) + 1) % FILTERS.length];
+  var fb = document.getElementById('fb');
+  fb.textContent = FLBL[FILTER];
+  fb.classList.toggle('on', FILTER !== 'all');
+  renderList();
+}
+
+function resetSes() {
+  if (!confirm('Reset toàn bộ điểm danh Buổi ' + SES + '?')) return;
+  setPill('busy', 'Đang xóa...');
+  api({action: 'reset', session: SES}).then(function() {
+    DATA.forEach(function(_, i) { if (SES === 1) DATA[i].s1 = ''; else DATA[i].s2 = ''; });
+    renderAll(); setPill('ok', 'Đã lưu'); toast('↺ Đã reset Buổi ' + SES);
+  }).catch(function(e) { setPill('fail', 'Lỗi'); toast('❌ ' + e.message); });
+}
+
+function renderAll() { renderStats(); renderList(); }
+
+function renderStats() {
+  var tot = DATA.length, yes = 0, no = 0;
+  DATA.forEach(function(m) {
+    var v = SES === 1 ? m.s1 : m.s2;
+    if (v === 'yes') yes++; else if (v === 'no') no++;
+  });
+  document.getElementById('sT').textContent = tot;
+  document.getElementById('sY').textContent = yes;
+  document.getElementById('sN').textContent = no;
+  document.getElementById('sK').textContent = tot - yes - no;
+  var pct = tot > 0 ? (yes + no) / tot * 100 : 0;
+  document.getElementById('pf').style.width = pct + '%';
+  document.getElementById('px').textContent = (yes + no) + ' / ' + tot + ' đã điểm danh';
+  document.getElementById('tc1').textContent = DATA.filter(function(m) { return m.s1 === 'yes'; }).length + ' có mặt';
+  document.getElementById('tc2').textContent = DATA.filter(function(m) { return m.s2 === 'yes'; }).length + ' có mặt';
+}
+
+function hl(t, q) {
+  if (!q) return t;
+  return t.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<mark>$1</mark>');
+}
+function ini(n) { var p = n.trim().split(' '); return (p[p.length - 1] || '?')[0].toUpperCase(); }
+
+function renderList() {
+  var q = document.getElementById('sq').value.trim().toLowerCase();
+  var el = document.getElementById('listEl');
+  var filtered = DATA.filter(function(m) {
+  var name = String(m.name || '').toLowerCase();
+  var company = String(m.company || '').toLowerCase();
+  var v = SES === 1 ? m.s1 : m.s2;
+
+  return (!q || name.includes(q) || company.includes(q))
+      && (FILTER === 'all' || (FILTER === 'nk' && v === '') || FILTER === v);
+});
+  if (!filtered.length) {
+    el.innerHTML = '<div class="loading">' + (DATA.length ? '😕 Không tìm thấy' : '📂 Chưa có dữ liệu') + '</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(function(m) {
+    var i = DATA.indexOf(m);
+    var v = SES === 1 ? m.s1 : m.s2;
+    var cls = v === 'yes' ? 'yes' : v === 'no' ? 'no' : '';
+    var stx = v === 'yes' ? '<span class="ry">✅ Có mặt</span>'
+            : v === 'no'  ? '<span class="rno">❌ Vắng mặt</span>'
+            : '<span class="rk">— Chưa điểm danh</span>';
+    return '<div class="row ' + cls + '" onclick="openMo(' + i + ')">'
+      + '<div class="av">' + ini(m.name) + '</div>'
+      + '<div class="ri">'
+      +   '<div class="rn">' + hl(m.name, q) + '</div>'
+      +   '<div class="rc">' + hl(m.company, q) + '</div>'
+      +   '<div class="rs">' + stx + '</div>'
+      + '</div>'
+      + '<div class="tks">'
+      +   '<div class="tb p ' + (v === 'yes' ? 'on' : '') + '" onclick="setStatus(' + i + ',\'yes\',event)">✓</div>'
+      +   '<div class="tb a ' + (v === 'no'  ? 'on' : '') + '" onclick="setStatus(' + i + ',\'no\',event)">✗</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function exportCSV() {
+  var rows = [['STT','Họ và Tên','Công ty','Buổi 1','Buổi 2']];
+  DATA.forEach(function(m, i) {
+    rows.push([i+1, m.name, m.company,
+      m.s1==='yes'?'Có mặt':m.s1==='no'?'Vắng':'',
+      m.s2==='yes'?'Có mặt':m.s2==='no'?'Vắng':''
+    ]);
+  });
+  var csv = rows.map(function(r) {
+    return r.map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',');
+  }).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'}));
+  a.download = 'diemdanh_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('📊 Đã xuất CSV');
+}
+
+function setPill(s, t) {
+  var b = document.getElementById('pill');
+  b.className = 'pill' + (s === 'busy' ? ' busy' : s === 'fail' ? ' fail' : '');
+  document.getElementById('ptxt').textContent = t;
+}
+function toast(msg) {
+  var t = document.getElementById('toastEl');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(function() { t.classList.remove('on'); }, 2500);
+}
+
+loadData();
+</script>
+</body>
+</html>
